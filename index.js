@@ -3,6 +3,7 @@ const _ = require('lodash');
 const hist = require('./osmhistory');
 const fixedTable = require('./fixedtable');
 
+/*
 const googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
     maxZoom: 20,
     subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
@@ -12,11 +13,22 @@ const baseMaps = {
     "OpenStreetMap": osmTile,
     "Google Satellite": googleSat
 };
+*/
 
-const map = L.map('map', { layers: [osmTile] }).setView([51.505, -0.09], 13);
-L.control.layers(baseMaps).addTo(map);
+const map = new maptalks.Map('map', {
+    baseLayer: new maptalks.TileLayer('OSM', {
+        urlTemplate: '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        subdomains: ['a', 'b', 'c']
+    }),
+    layers: [new maptalks.VectorLayer('v')]
+});
 
-const overlays = L.featureGroup([]).addTo(map);
+const overlays = map.getLayer('v'); // FIXME: keep compatibility
+
+//const map = L.map('map', { layers: [osmTile] }).setView([51.505, -0.09], 13);
+//L.control.layers(baseMaps).addTo(map);
+
+// const overlays = L.featureGroup([]).addTo(map);
 
 d3.select(window).on('load', function () {
     var hash = document.location.hash;
@@ -78,7 +90,7 @@ function clickGo() {
 
 function clear() {
     d3.select('#history table').remove();
-    overlays.clearLayers();
+    overlays.clear();
     mapStatusChanged({showMap: false, more: false});
 }
 
@@ -180,8 +192,7 @@ function mapStatusChanged(status) {
     d3.select('#go').classed('is-loading', false);
     if (status.showMap) {
         d3.select('#map').style('display', 'block');
-        map.fitBounds(overlays.getBounds(), { paddingTopLeft: L.point(0, 50) });
-        map.invalidateSize();
+        map.fitExtent(overlays.getExtent(), 0);
     } else {
         d3.select('#map').style('display', 'none');
     }
@@ -241,7 +252,7 @@ function exportLevel0(type, obj, refObjects) {
 
 function showMapLayer(layer, version, panTo, color) {
     layer.bindTooltip(version.toString(), { direction: 'top', offset: L.point(0, -10), className: 'leaflet-tooltip' });
-    overlays.addLayer(layer);
+    overlays.addGeometry(layer);
     d3.selectAll(`.version_${version}`)
         .on('mouseover', () => {
             layer.setStyle({ color: 'red' }).openTooltip().bringToFront();
@@ -265,8 +276,8 @@ function showNode(object) {
     return hist.getWaysNodeBelongsTo(object[object.length - 1].id)
         .then(ways => {
             ways.forEach(way => {
-                overlays.addLayer(
-                    L.polyline(way.latlons, { color: 'orange' })
+                overlays.addGeometry(
+                    new maptalks.LineString(way.latlons, { symbol: { lineColor: 'orange' }})
                         .bindPopup(`<a href="#/way/${way.id}" target="_blank">${way.id}</a>`)
                 );
             });
@@ -285,8 +296,8 @@ function showWay(object) {
     }
     return hist.requestWayFull(lastVersion.id)
         .then(({ latlons }) => {
-            overlays.addLayer(
-                L.polyline(latlons, { color: 'orange' })
+            overlays.addGeometry(
+                new maptalks.LineString(latlons, { symbol: { lineColor: 'orange' }})
             );
             return { showMap: true, more: true, object };
         });
@@ -301,7 +312,7 @@ function showWayAdvance(object) {
                 way => {
                     const color = way.version === latestVersion ? 'orange' : 'blue';
                     const { $, nodes } = hist.getWayHistoryByDate(way.id, way.timestamp);
-                    const polyline = L.polyline(nodesToLatlons(nodes), { color });
+                    const polyline = new maptalks.LineString(nodesToLatlons(nodes), { color });
                     showMapLayer(polyline, way.version, polyline.getBounds().getCenter(), color);
                     showExportButton('way', way, nodes);
                 }
