@@ -1,3 +1,7 @@
+## 1.0.2 (2018-2-12)
+
+- Add button to open in OSM
+
 ## 1.0.1
 
 - Replace Google Satellite layer by Mapbox Satellite

@@ -78,6 +78,10 @@ function clickGo() {
                 errorMessage('Error occurred');
             }
         });
+
+    d3.select('#openosm')
+        .attr('disabled', null)
+        .on('click', () => window.open(`https://www.openstreetmap.org/${type}/${id}`));
 }
 
 function clear() {
