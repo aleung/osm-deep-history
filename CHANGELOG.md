@@ -3,8 +3,10 @@
 ## 1.0.3 (2019-10-4)
 
 - Merge upstream
-  - Use a different row function for tags to handle HTML
-  - Vulnerability mitigation
+  - Use a different row function for tags to handle HTML (655c905)
+  - Vulnerability mitigation (a50452e)
+- Add Google Satellite
+- Update Mapbox API token
 
 ## 1.0.2 (2018-2-12)
 

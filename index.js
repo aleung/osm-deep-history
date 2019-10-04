@@ -3,18 +3,25 @@ const _ = require('lodash');
 const hist = require('./osmhistory');
 const fixedTable = require('./fixedtable');
 
+const mapboxAccessToken = "pk.eyJ1IjoiYWxldW5nIiwiYSI6ImNrMWM5NzY3NTAxdXEzaG45d2pucjRqMmQifQ.394RX1ZvO-uf-7Wc8JYn6A"; // only for https://aleung.github.io 
+
 const mapboxSat = L.tileLayer(
-  'https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoicmFzYWd5IiwiYSI6ImNpejVrMjc4eTAwNGczM2thNWozYnJ1OHkifQ.yFRr3Sd39TJiwEguQpIkWQ',
+  `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=${mapboxAccessToken}`,
   {maxZoom: 20, attribution: '<a href="https://www.mapbox.com/about/maps/" target="_blank">© Mapbox</a> <a href="http://www.openstreetmap.org/about/" target="_blank">© OpenStreetMap</a> contributors'}
 );
-attribution: '© Mapbox © OpenStreetMap'
 const osmTile = L.tileLayer(
   '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   {attribution: '<a href="http://www.openstreetmap.org/about/" target="_blank">© OpenStreetMap</a> contributors'}
 );
+const googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+    maxZoom: 20,
+    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+    attribution: '<a href="https://maps.google.com" target="_blank">© Google</a>',
+});
 const baseMaps = {
     "OpenStreetMap": osmTile,
-    "Mapbox Satellite": mapboxSat
+    "Mapbox Satellite": mapboxSat,
+    "Google Satellite": googleSat,
 };
 
 const map = L.map('map', { layers: [osmTile] }).setView([51.505, -0.09], 13);

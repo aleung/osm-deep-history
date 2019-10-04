@@ -29,7 +29,7 @@ The source code has been rewritten mostly in ES6, using Promise and functional s
 To rebuild and run locally:
 
 ```
-npm install
-npm run build
-npm start
+yarn install
+yarn build
+yarn start
 ```
